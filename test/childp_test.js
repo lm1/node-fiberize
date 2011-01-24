@@ -11,7 +11,7 @@ fiberize.start(function() {
   // result[0] is a returned child object
   assert.equal(typeof result[0].kill, 'function');
 
-  // result[1] is 1st callabck argument (error code)
+  // result[1] is 1st callback argument (error code)
   assert.equal(result[1], null);
 
   // result[2] is 2ns callback argument (stdout)

@@ -57,7 +57,7 @@ mod.fr0 = function(callback) {
   callback();
   return 1;
 };
-mod.fr0.result = [1];
+mod.fr0.result = 1;
 
 mod.fr1 = function(a, callback) {
   callback(a);
@@ -66,21 +66,41 @@ mod.fr1 = function(a, callback) {
 mod.fr1.args = [2];
 mod.fr1.result = [1, 2];
 
+mod.fr2 = function(a, b, callback) {
+  callback(a, b);
+  return 1;
+};
+mod.fr2.args = [2, 3];
+mod.fr2.result = [1, 2, 3];
+
+mod.frerr = function(callback) {
+  callback(true);
+  return 1;
+};
+mod.frerr.result = [1, true];
+
 //
 // Delayed callback with result
 //
-mod.fr1d = function(callback) {
-  process.nextTick(function() {callback(2);});
+mod.fr0d = function(callback) {
+  process.nextTick(function() {callback();});
   return 1;
 };
+mod.fr0d.result = 1;
+
+mod.fr1d = function(a, callback) {
+  process.nextTick(function() {callback(a);});
+  return 1;
+};
+mod.fr1d.args = [2];
 mod.fr1d.result = [1, 2];
 
-mod.fr2d = function(callback) {
-  process.nextTick(function() {callback(2, 3);});
+mod.fr2d = function(a, b, callback) {
+  process.nextTick(function() {callback(a, b);});
   return 1;
 };
+mod.fr2d.args = [2, 3];
 mod.fr2d.result = [1, 2, 3];
-
 
 fiberize(mod);
 
@@ -92,7 +112,7 @@ fiberize.start(function() {
 
     console.log(fn, f.args, f.result, f.throws ? 'throws' : '');
 
-    var args = f.args || [];
+    var args = f.args; // || undefined
     var result;
     if (f.throws) {
       assert.throws(function() {

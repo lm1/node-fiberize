@@ -15,6 +15,24 @@ fiberize.start(function() {
   var txt = fs.readFileW(file, 'utf8');
   assert.ok(txt.length == info.size);
 
+  var data = fs.readFileW(file);
+  assert.ok(data.length == info.size);
+
+  assert.throws(function() {
+    fs.unlinkW('^$%#$%$#@^%');
+  });
+
+  var cwd = process.cwd();
+  var rel = __filename.slice(cwd.length + 1);
+  var dir = __filename.split('/').slice(0, -1).join('/');
+  var fn = __filename.split('/').pop();
+
+  var p = fs.realpathW(rel);
+  assert.equal(__filename, p);
+
+  var res = fs.readdirW(dir);
+  assert.ok(res.some(function(f) { return f === fn; }));
+
   assert.throws(function() {
     fs.writeFileW('.', 'ABC', 'utf8');
   });

@@ -24,30 +24,30 @@ require('fibers');
 
 module.exports = fiberize;
 
-module.exports.wrapf = wrapf;
-
 module.exports.require = function(path) {
   return fiberize(require(path));
 };
 
-function build_result(result, cb_args) {
+function build_result(result, cb_args, type) {
   var ret = {};
   if (result !== undefined) {
     ret.value = [result].concat(cb_args);
+  } else if (type === 0) {
+    ret.value = cb_args;
   } else {
     if (cb_args[0]) {
       ret.error = cb_args[0];
+      return ret;
     } else {
       ret.value = cb_args.slice(1);
-      if (ret.value.length == 1) ret.value = ret.value[0];
     }
   }
+  if (ret.value.length == 1) ret.value = ret.value[0];
   return ret;
 }
 
-function wrapf(fn) {
+function wrapf(fn, type) {
   return function() {
-    var self = this;
     var args = Array.prototype.slice.call(arguments);
     var fiber = Fiber.current;
     var returned = false;
@@ -56,7 +56,7 @@ function wrapf(fn) {
     var cb = function(err) {
       cb_args = Array.prototype.slice.call(arguments);
       if (!returned) return true;
-      var ret = build_result(result, cb_args);
+      var ret = build_result(result, cb_args, type);
       if (ret.error) {
         fiber.throwInto(ret.error);
         return false;
@@ -65,14 +65,12 @@ function wrapf(fn) {
         return true;
       }
     };
-    var len = fn.__length || fn.length;
-    if (args.length >= len) args.push(cb);
-    else args[len - 1] = cb;
-    var value = fn.apply(self, args);
+    args.push(cb);
+    var value = fn.apply(this, args);
     returned = true;
-    if (value !== self) result = value;
+    if (value !== this) result = value;
     if (cb_args) {
-      var ret = build_result(result, cb_args);
+      var ret = build_result(result, cb_args, type);
       if (ret.error) throw (ret.error);
       else return ret.value;
     }
@@ -80,15 +78,13 @@ function wrapf(fn) {
   }
 }
 
-function fiberizeObject(obj) {
+function fiberize(obj) {
   if (obj.__fiberized) return obj;
   for (var f in obj) {
     var fn = obj[f];
-    console.log('Found:', f, typeof fn);
     if (typeof fn !== 'function' || /^_.*|.*_$/.test(f)) continue;
-
-    var body = obj[f].toString(); // stringify function body
-    // extract arguments, also the commented ones
+    var body = fn.toString(); // stringify function body
+    // extract arguments (including the commented ones)
     var args = /function [\w$]*\((.*)\)\s*{/.exec(body)[1]
         .replace(/\/\*|\*\//g, ', ')
         .replace(/\s*/g, '')
@@ -96,27 +92,30 @@ function fiberizeObject(obj) {
         .replace(/,$/, '')
         .split(',');
     var lastarg = args.slice(-1).toString();
-    if (lastarg == 'callback' || obj[f].__hasCallback) {
-      console.log('Wrapping', f, '(', args, ')');
-      fn.__length = args.length;
+    if (/^cb$|callback/.test(lastarg) || fn.__hasCallback) {
       if (obj[f + 'W'] === undefined) {
-        obj[f + 'W'] = wrapf(fn);
+        obj[f + 'W'] = wrapf(fn, fn.__callbackType);
       } else {
         console.error('(fiberize) Warning:', f + 'W', 'already defined.');
       }
     }
-    if (fn.prototype) fiberizeObject(fn.prototype);
+    if (fn.prototype) fiberize(fn.prototype);
   }
+  if (obj.prototype) fiberize(obj.prototype);
   obj.__fiberized = true;
   return obj;
 }
 
-function fiberize(mod, proto) {
-  return fiberizeObject(mod, proto);
-}
-
 module.exports.start = function(f) {
-  return Fiber(f).run();
+  return Fiber(function(args) {
+    return f.apply(this, args);
+  }).run(Array.prototype.slice.call(arguments, 1));
+};
+
+module.exports.task = function(f) {
+  return function() {
+    Fiber(function(args) {f.apply(this, args);}).run(arguments);
+  };
 };
 
 module.exports.sleep = function(ms) {
@@ -126,3 +125,4 @@ module.exports.sleep = function(ms) {
 };
 
 require('fs').readFile.__hasCallback = true;
+require('path').exists.__callbackType = 0;
