@@ -1,6 +1,5 @@
 
-INTRODUCTION
-------------
+# Introduction
 
 No more callbacks clutter! Fiberize converts Node.js asynchronous API to easy to use and read, straightforward sequential form.
 
@@ -12,8 +11,7 @@ No more callbacks clutter! Fiberize converts Node.js asynchronous API to easy to
 It's possible thanks to fiber based cooperative multithreading added to V8 by [node-fibers](https://github.com/laverdet/node-fibers).
 Fiber is just a thread of execution, but with no preemption, thus safe and simple to use. And of course you may have multiple fibers running in parallel.
 
-GETTING STARTED
----------------
+# Getting started
 
     npm install fiberize
 
@@ -23,8 +21,7 @@ Then run your code with:
 
     node-fibers your_file.js
 
-EXAMPLES
---------
+# Examples
 
 Fully featured example from introduction:
 
@@ -36,7 +33,7 @@ Fully featured example from introduction:
       console.log('World');
     });
 
-This following examples shows how the original API is extended by fiberize (notice W suffix): 
+This following examples shows how the original API is extended by fiberize (notice `W` suffix): 
 
     var fiberize = require('fiberize');
     var fs = fiberize.require('fs');
@@ -80,16 +77,15 @@ You can serve each HTTP request with separate fiber. You can also use exceptions
     console.log('Listening on port 8000...');
 
 
-INTERFACE
----------
+# Interface
 
     var fiberize = require('fiberize');
 
-- fiberize(obj)
+- `fiberize(obj)`
 
-fiberize itself is a function which extends given object *obj* so for all functions which explicitly declare last argument named callback, a new function with suffix 'W' is added.
+fiberize itself is a function which extends given object `obj` so for all functions which explicitly declare last argument named callback, a new function with suffix 'W' is added.
 
-The new funcion does take same parameters with exception of callback, and behaves the same, but does not return immediately. Instead it suspends current fiber until the underlying callback is triggered and returns the value passed as second argument to callback. If the first argument (usuall err) was given to the callback exception is thrown (see below for more details), e.g.:
+The new function does take same parameters with exception of callback, and behaves the same, but does not return immediately. Instead it suspends current fiber until the underlying callback is triggered and returns the value passed as second argument to callback. If the first argument (usuall `err`) was given to the callback exception is thrown (see below for more details), e.g.:
 
     var obj = {
         method1: function(a, callback) {}
@@ -102,31 +98,30 @@ The new funcion does take same parameters with exception of callback, and behave
         method1W: function(a) {}
     }
 
-*You cannot use transformed functions directly from main thread, you need to create a fiber first.*
+*You cannot use transformed functions directly from main thread, you need to create a fiber first!*
 
-- fiberize.require(path)
+- `fiberize.require(path)`
 
-For convenience fiberize.require function has been provided, does the same as *require*, but extends the required module by the way.  
+For convenience `fiberize.require` function has been provided, does the same as `require`, but extends the required module by the way.  
 
-- fiberize.start(f /* , args... */ )
+- `fiberize.start(f /* , args... */ )`
 
-*start* runs *f* in a new fiber and passes *args* to *f*.
-Returns the value returned by *f*.
+`start` runs `f` in a new fiber and passes `args` to `f`.
+Returns the value returned by `f`.
 
-- fiberize.task(f)
+- `fiberize.task(f)`
 
-Returns a function which will execute *f* in new fiber upon invocation. All the arguments of the returned function are passed directly to *f*. Useful to postpone start of a fiber, or wrap a callback in a fiber.
+Returns a function which will execute `f` in new fiber upon invocation. All the arguments of the returned function are passed directly to `f`. Useful to postpone start of a fiber, or wrap a callback in a fiber.
 
-- fiberize.sleep(ms)
+- `fiberize.sleep(ms)`
 
-Suspends current fiber for *ms* miliseconds. Doesn't block the event loop, thus other fibers may execute. 
+Suspends current fiber for `ms` miliseconds. Doesn't block the event loop, thus other fibers may execute. 
 
-CONVENTIONS
------------
+# Conventions
 
 Fiberaze bases strongly on consistent conventions used in Node API. If you're using third party libraries following similar conventions you may be able to transform them as well.
 
-Basically all functions receiving callback as the very last arguments get additional form suffixed with 'W'. The callback must be specified explicitly in the arguments list (also comments are parsed).
+Basically all functions receiving callback as the very last arguments get additional form suffixed with `W`. The callback must be specified explicitly in the arguments list (also comments are parsed).
 
 The return value of new functions depends on behavior of original function, that is for functions which:
 
@@ -141,17 +136,15 @@ The return value of new functions depends on behavior of original function, that
 - do return a value (other than this)
 > returns an array containing original result followed by all callback arguments
 
-*Some special cases are handled differently.*
+*Some special cases are handled differently!*
 
-WARNING
--------
+# Warning
 
 This module is at initial stage of development. Though large part of the Node core API is covered (with tests), not all modules can be fiberized automatically.
 
 Namely events, net, stream, and HTTP are inherently asynchronous and require use of callbacks.  
 
 
-COMMING SOON
-------------
+# Comming soon...
 
 P like Promises (aka futures).
