@@ -140,11 +140,5 @@ The return value of new functions depends on behavior of original function, that
 
 # Warning
 
-This module is at initial stage of development. Though large part of the Node core API is covered (with tests), not all modules can be fiberized automatically.
-
-Namely events, net, stream, and HTTP are inherently asynchronous and require use of callbacks.  
-
-
-# Comming soon...
-
-P like Promises (aka futures).
+Though large part of the Node core API is covered (with tests), not all modules can be fiberized automatically;
+namely: events, net, stream, and HTTP are inherently asynchronous and cannot be reasonably fiberized.
