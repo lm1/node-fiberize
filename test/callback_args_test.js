@@ -120,9 +120,9 @@ fiberize.start(function() {
       });
     } else {
       result = fw.apply(null, args);
-    }
-    if (f.result) {
-      assert.deepEqual(result, f.result);
+      console.log('Result', result);
+      if (f.result) assert.deepEqual(result, f.result);
+      else assert.strictEqual(result, f.result);
     }
   }
 

@@ -1,6 +1,6 @@
 {
   "name": "fiberize",
-  "description": "Node API wrapper for use with node-fibers.",
+  "description": "Node API wrapper for use with fibers.",
   "version": "0.0.1",
   "url": "http://github.com/lm1/node-fiberize",
   "author": "Lukasz Mielicki <mielicki@gmail.com>",
