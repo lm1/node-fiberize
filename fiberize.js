@@ -31,12 +31,6 @@ module.exports.require = function(path) {
 function get_current_fiber() {
   var f = Fiber.current;
   if (f === undefined) throw new Error("You need to start a fiber first!");
-  if (!f.resume) {
-    f.resume = function() {
-      if (this.started) this.run();
-      else throw new Error("The fiber is not started!");
-    }
-  }
   return f;
 }
 
@@ -49,7 +43,7 @@ function wrapf(fn, type) {
     var cb = function(err) {
       cb_args = Array.prototype.slice.call(arguments);
       if (Fiber.current !== fiber) {
-        fiber.resume();
+        fiber.run();
       }
     };
     args.push(cb);
@@ -121,7 +115,7 @@ fiberize.sleep = function(ms) {
   var fiber = get_current_fiber();
   setTimeout(function() {
     wake = true;
-    fiber.resume();
+    fiber.run();
   }, ms);
   while (!wake) {
     yield();
