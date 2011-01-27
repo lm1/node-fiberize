@@ -99,8 +99,8 @@ function fiberize(obj) {
 }
 
 fiberize.start = function(f) {
-  return Fiber(function(args) {
-    return f.apply(this, args);
+  Fiber(function(args) {
+    f.apply(this, args);
   }).run(Array.prototype.slice.call(arguments, 1));
 };
 

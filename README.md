@@ -11,11 +11,13 @@ No more callbacks clutter! Fiberize converts Node.js asynchronous API to easy to
 It's possible thanks to fiber based cooperative multithreading added to V8 by [node-fibers](https://github.com/laverdet/node-fibers).
 Fiber is just a thread of execution, but with no preemption, thus safe and simple to use. And of course you may have multiple fibers running in parallel.
 
+You may also like [fibers-promise](https://github.com/lm1/node-fibers-promise) library.
+
 # Getting started
 
     npm install fiberize
 
-This will install node-fibers as well. Working g++, node headers and boost library are required. You need to rebuild node-fibers each time you upgrade node!
+This will install node-fibers as well. Working g++ and node headers are required.
 
 Then run your code with:
 
