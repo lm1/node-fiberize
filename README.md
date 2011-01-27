@@ -109,7 +109,6 @@ For convenience `fiberize.require` function has been provided, does the same as 
 - `fiberize.start(f /* , args... */ )`
 
 `start` runs `f` in a new fiber and passes `args` to `f`.
-Returns the value returned by `f`.
 
 - `fiberize.task(f)`
 
