@@ -1,7 +1,7 @@
 {
   "name": "fiberize",
   "description": "Node API wrapper for use with fibers.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "url": "http://github.com/lm1/node-fiberize",
   "author": "Lukasz Mielicki <mielicki@gmail.com>",
   "main": "fiberize",
@@ -9,6 +9,6 @@
     "node": ">=0.3.6"
   },
   "dependencies" : {
-    "fibers": ">=0.1.1"
+    "fibers": ">=0.1.0"
   }
 }
